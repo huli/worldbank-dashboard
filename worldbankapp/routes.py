@@ -1,21 +1,41 @@
 from worldbankapp import app
-import json, plotly
-from flask import render_template
-from wrangling_scripts.wrangle_data import load_figures
 
-@app.route('/')
-@app.route('/index')
+import json, plotly
+from flask import render_template, request, Response, jsonify
+from wrangling_scripts.data import load_figures
+
+
+@app.route('/', methods=['POST', 'GET'])
+@app.route('/index', methods=['POST', 'GET'])
 def index():
 
-    figures = load_figures()
+	# List of countries for filter
+	country_codes = [['Canada','CAN'],['United States','USA'],['Brazil','BRA'],
+	['France','FRA'],['India','IND'],['Italy','ITA'],['Germany','DEU'],['Switzerland','CHE'],
+	['United Kingdom','GBR'],['China','CHN'],['Japan','JPN']]
 
-    # Plot ids for the id tag
-    ids = ['fig-{}'.format(i) for i, _ in enumerate(figures)]
+	# Parse the POST request countries list
+	if (request.method == 'POST') and request.form:
+		figures = load_figures(request.form)
+		countries_selected = []
 
-    # Convert the plotly figures to JSON
-    figures_json = json.dumps(figures, cls=plotly.utils.PlotlyJSONEncoder)
+		for country in request.form.lists():
+			countries_selected.append(country[1][0])
+	
+	# GET request returns all countries for initial page load
+	else:
+		figures = load_figures()
+		countries_selected = []
+		for country in country_codes:
+			countries_selected.append(country[1])
 
-    # Render template and include figures
-    return render_template('/index.html',
-                ids=ids,
-                figures_json=figures_json) 
+	# plot ids for the html id tag
+	ids = ['figure-{}'.format(i) for i, _ in enumerate(figures)]
+
+	# Convert the plotly figures to JSON for javascript in html template
+	figuresJSON = json.dumps(figures, cls=plotly.utils.PlotlyJSONEncoder)
+
+	return render_template('index.html', ids=ids,
+		figuresJSON=figuresJSON,
+		all_countries=country_codes,
+		countries_selected=countries_selected)
