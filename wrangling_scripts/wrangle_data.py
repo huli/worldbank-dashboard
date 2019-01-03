@@ -1,8 +1,6 @@
 import pandas as pd
 import plotly.graph_objs as go
 
-# TODO: Scroll down to line 157 and set up a fifth visualization for the data dashboard
-
 def cleandata(dataset, keepcolumns = ['Country Name', '1990', '2015'], value_variables = ['1990', '2015']):
     """Clean world bank data for a visualizaiton dashboard
 
@@ -155,9 +153,6 @@ def load_figures():
                 yaxis = dict(title = 'Forest Area (square km)'),
                 )
 
-    # TODO: Make a fifth chart from the data in API_SP.RUR.TOTL_DS2_en_csv_v2_9914824.csv
-    # This csv file contains data about the total rural population for various countries over many years
-    # Make a bar chart showing the rural population of these countries ['United States', 'China', 'Japan', 'Germany', 'United Kingdom', 'India', 'France', 'Brazil', 'Italy', 'Canada'] in the year 2015.
     graph_five = []
     
     for country in countrylist:
@@ -171,7 +166,9 @@ def load_figures():
 
     layout_five = dict(title = 'Rural Population',
             xaxis = dict(title = 'Years',),
-            yaxis = dict(title = '# of People'),
+            yaxis = dict(title = '# of People',
+            type='log',
+            autorange=True),
             )
     
     # append all charts to the figures list
